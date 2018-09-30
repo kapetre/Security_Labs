@@ -254,7 +254,7 @@ ambari-server restart
 - Verifying ldapbind account and search base via `ldapsearch`
 
 		[root@demo ~]# yum install -y openldap-clients 
-		
+		
 		# Test ldap bind properties
 		AM_LDAP_SEARCHBASE="cn=accounts,dc=hortonworks,dc=com"
 		AM_LDAP_BINDDN="uid=ldapbind,cn=users,cn=accounts,dc=hortonworks,dc=com"
