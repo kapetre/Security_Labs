@@ -2,7 +2,7 @@
 
 ### Sample script to setup FreeIPA on CentOS 7 on AWS
 
-Based on steps [here](https://www.evernote.com/client/snv?noteGuid=f7eed2f9-5255-4f7c-b0d8-ecee1dba3c9f&noteKey=d2b6e968a783fd5e&var=b&sn=https%3A%2F%2Fwww.evernote.com%2Fshard%2Fs337%2Fsh%2Ff7eed2f9-5255-4f7c-b0d8-ecee1dba3c9f%2Fd2b6e968a783fd5e&exp=ENB3538)
+Based on steps [here](https://www.evernote.com/client/snv?noteGuid=f7eed2f9-5255-4f7c-b0d8-ecee1dba3c9f&noteKey=d2b6e968a783fd5e&var=b&sn=https%3A%2F%2Fwww.evernote.com%2Fshard%2Fs337%2Fsh%2Ff7eed2f9-5255-4f7c-b0d8-ecee1dba3c9f%2Fd2b6e968a783fd5e&exp=ENB3538), official docs [here](https://docs.hortonworks.com/HDPDocuments/HDP3/HDP-3.0.1/authentication-with-kerberos/content/kerberos_optional_use_an_existing_ipa.html)
 
 ```
 
