@@ -8,8 +8,8 @@
 **Lab Topics**<br>
 
 1. [Register cluster nodes as IPA Clients](#section-1)
-2. ["Secure Ambari" via ambari-server setup-security](#section-2)
-3. [Enable Kerberos on the cluster](#section-3)
+2. [Secure Ambari via ambari-server setup-security](#section-2)
+3. [Enable Kerberos for cluster services](#section-3)
 4. [Update Ranger Policies for Groups/Users](#section-4)
 5. [Enable LDAP for ambari, knox](#section-5)
 
