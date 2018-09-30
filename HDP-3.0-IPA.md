@@ -16,6 +16,7 @@
 
 ## <a name="section-1"></a>1. Register cluster nodes as IPA clients
 - Run below on *all nodes of HDP cluster* (replace $INTERNAL_IP_OF_IPA)
+
 ```
 echo "$INTERNAL_IP_OF_IPA ipa.hortonworks.com ipa" >> /etc/hosts
 ```
@@ -227,10 +228,121 @@ ambari-server restart
 -Start Ambari 2.7.x security wizard and select IPA option and pass in below:
 ![Image](https://raw.githubusercontent.com/HortonworksUniversity/Security_Labs/master/screenshots/IPA-SecurityWizard.png)
   
+---  
 
 <a name="section-5"></a>
-# 5. Enable LDAP For Ambari, Knox
+# 5. Enable LDAP For Ambari
 
-FreeIPA Tips For LDAP Search Properties
+#### FreeIPA Tips for determining LDAP Search Properties
+
+- IPA Clients contain `/etc/ipa/default.conf` with various ldap server properties 
+
+		[root@demo ~]# cat /etc/ipa/default.conf 
+		basedn = dc=hortonworks,dc=com
+		realm = HORTONWORKS.COM
+		domain = hortonworks.com
+		server = ipa.hortonworks.com
+
+- Determining valid **user** attributes (posixaccount, uid, etc):
+		
+		ipa user-show hadoopadmin --raw --all
+		
+- Determining valid **group** attributes (posixgroup, member, memberUid, etc)
+
+		ipa group-show admins --raw --all
+		
+- Verifying ldapbind account and search base via `ldapsearch`
+
+		[root@demo ~]# yum install -y openldap-clients 
+		
+		# Test ldap bind properties
+		AM_LDAP_SEARCHBASE="cn=accounts,dc=hortonworks,dc=com"
+		AM_LDAP_BINDDN="uid=ldapbind,cn=users,cn=accounts,dc=hortonworks,dc=com"
+		AM_LDAP_BINDDN_PW="BadPass#1"
+		AM_LDAP_URL=ldaps://ipa.hortonworks.com:636
+		
+		# Search for a valid uid and ensure the searchbase, bind dn, and ldapurl resolve properly
+		[root@demo ~]# ldapsearch -D ${AM_LDAP_BINDDN} \
+		-w ${AM_LDAP_BINDDN_PW} \
+		-b ${AM_LDAP_SEARCHBASE} \
+		-H ${AM_LDAP_URL} uid=hadoopadmin
+		
+		# Tail results of a valid ldapsearch for a single uid:
+		numResponses: 2
+		numEntries: 1
 
 
+### 5.1 Enable LDAP for Ambari Server
+
+Ambari 2.7.1 offers a CLI option in `ambari-server setup-ldap` for choosing ldap type as IPA, which attempts to set some of the defaults required for integration. It seems to still have a few challenges, so few of the defaults need to be change. 
+
+On the ambari-server host:
+
+```
+[root@demo certificates]# ambari-server setup-ldap
+Currently 'no auth method' is configured, do you wish to use LDAP instead [y/n] (y)?  
+Please select the type of LDAP you want to use (AD, IPA, Generic LDAP):IPA
+Primary LDAP Host (ipa.ambari.apache.org): ipa.hortonworks.com
+Primary LDAP Port (636):
+Secondary LDAP Host <Optional>:
+Secondary LDAP Port <Optional>:
+Use SSL [true/false] (true):
+Do you want to provide custom TrustStore for Ambari [y/n] (y)?
+TrustStore type [jks/jceks/pkcs12] (jks):
+Path to TrustStore file (/etc/pki/java/cacerts):
+Password for TrustStore:
+Re-enter password:
+User object class (posixUser): posixaccount
+User ID attribute (uid):
+Group object class (posixGroup):
+Group name attribute (cn):
+Group member attribute (memberUid): member
+Distinguished name attribute (dn):
+Search Base (dc=ambari,dc=apache,dc=org): cn=accounts,dc=hortonworks,dc=com
+Referral method [follow/ignore] (follow):
+Bind anonymously [true/false] (false):
+Bind DN (uid=ldapbind,cn=users,cn=accounts,dc=ambari,dc=apache,dc=org): uid=ldapbind,cn=users,cn=accounts,dc=hortonworks,dc=com
+Enter Bind DN Password:
+Confirm Bind DN Password:
+Handling behavior for username collisions [convert/skip] for LDAP sync (skip):
+Force lower-case user names [true/false]:
+Results from LDAP are paginated when requested [true/false]:
+```
+
+### 5.2 Sync users
+LDAP Users must be synced by invoked a command on the Ambari Server Host. User additions, and group associations made on the LDAP server will not propagate to Ambari automatically, only when this command is invoked. 
+
+```
+[root@demo ~]# ambari-server sync-ldap --all
+Using python  /usr/bin/python
+Syncing with LDAP...
+Enter Ambari Admin login: admin
+Enter Ambari Admin password:
+
+Fetching LDAP configuration from DB.
+Syncing all...
+
+Completed LDAP Sync.
+Summary:
+  memberships:
+    removed = 0
+    created = 16
+  users:
+    skipped = 1
+    removed = 0
+    updated = 0
+    created = 15
+  groups:
+    updated = 0
+    removed = 0
+    created = 26
+
+Ambari Server 'sync-ldap' completed successfully.
+```
+Sometimes restarting ambari server again helps. 
+
+### 5.2 Verify user group associations in Ambari
+
+Log in to Ambari as an Admin and Navigate to Manage Ambari > Users. Example user/groups from this lab:
+
+![Ambari-IPA-usersync](./screenshots/Ambari-IPA-usersync.png)
