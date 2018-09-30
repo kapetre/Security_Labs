@@ -13,10 +13,8 @@
 4. [Update Ranger Policies for Groups/Users](#section-4)
 5. [Enable LDAP for ambari, knox](#section-5)
 
--
 
-<a name="section-1"></a>
-## 1. Register cluster nodes as IPA clients
+## <a name="section-1"></a>1. Register cluster nodes as IPA clients
 - Run below on *all nodes of HDP cluster* (replace $INTERNAL_IP_OF_IPA)
 ```
 echo "$INTERNAL_IP_OF_IPA ipa.hortonworks.com ipa" >> /etc/hosts
