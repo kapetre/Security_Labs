@@ -2,11 +2,21 @@
 ## Instuctions for IPA Lab 
 
 ### Pre-reqs
-Need to have
-- HDP 3.x / Ambari 2.7.x cluster
+Need to have<br>
+- HDP 3.x / Ambari 2.7.x cluster<br>
 - Access to an IPA server that has been setup as descibed in [Hortonworks documentation](https://docs.hortonworks.com/HDPDocuments/HDP3/HDP-3.0.1/authentication-with-kerberos/content/kerberos_optional_use_an_existing_ipa.html)
 
-### Register cluster as IPA client
+**Lab Topics**<br>
+1 - [Register cluster nodes as IPA Clients](#section-1)<br>
+2 - [Run through ***ambari-server setup-security***](#section-2)<br>
+3 - [Enable Kerberos on the cluster](#section-3)<br>
+4 - [Update Ranger Policies](#section-4)<br>
+5 - [Enable LDAP for ambari, knox](#section-5)
+
+-
+
+<a name="section-1"></a>
+## 1. Register cluster nodes as IPA clients
 - Run below on *all nodes of HDP cluster* (replace $INTERNAL_IP_OF_IPA)
 ```
 echo "$INTERNAL_IP_OF_IPA ipa.hortonworks.com ipa" >> /etc/hosts
@@ -24,18 +34,18 @@ echo "search hortonworks.com" > /etc/resolv.conf
 echo "nameserver $INTERNAL_IP_OF_IPA" >> /etc/resolv.conf
 ```
 - Install IPA client
-```
-service dbus restart
 
-sudo ipa-client-install \
---server=ipa.hortonworks.com \
---realm=HORTONWORKS.COM \
---domain=hortonworks.com \
---mkhomedir \
---principal=admin -w BadPass#1 \
---unattended
-
-```
+  ```
+	service dbus restart
+	
+	sudo ipa-client-install \
+	--server=ipa.hortonworks.com \
+	--realm=HORTONWORKS.COM \
+	--domain=hortonworks.com \
+	--mkhomedir \
+	--principal=admin -w BadPass#1 \
+	--unattended
+  ```
 
 - Make sure you don't see below message from the output of previous command
 ```
@@ -62,7 +72,8 @@ id hadoopadmin
 kinit -V hadoopadmin
 ```
 
-## Enable kerberos on the cluster
+<a name="section-3"></a>
+## 3. Enable kerberos on the cluster
 
 -Start Ambari 2.7.x security wizard and select IPA option and pass in below:
 ![Image](https://raw.githubusercontent.com/HortonworksUniversity/Security_Labs/master/screenshots/IPA-SecurityWizard.png)
