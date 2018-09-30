@@ -10,8 +10,7 @@
 1. [Register cluster nodes as IPA Clients](#section-1)
 2. [Secure Ambari via ambari-server setup-security](#section-2)
 3. [Enable Kerberos for cluster services](#section-3)
-4. [Update Ranger Policies for Groups/Users](#section-4)
-5. [Enable LDAP for ambari, knox](#section-5)
+4. [Enable LDAP for ambari, knox](#section-4)
 
 
 ## <a name="section-1"></a>1. Register cluster nodes as IPA clients
@@ -221,17 +220,39 @@ ambari-server restart
 
 <br> 
 
+---
 
 <a name="section-3"></a>
 # 3. Enable kerberos on the cluster
 
--Start Ambari 2.7.x security wizard and select IPA option and pass in below:
-![Image](https://raw.githubusercontent.com/HortonworksUniversity/Security_Labs/master/screenshots/IPA-SecurityWizard.png)
+Enable Kerberos for cluster services via the wizard in Ambari, located in the Cluster Admin menu in the bottom left navigation panel. https://demo.hortonworks.com:8444/#/main/admin/kerberos
+
+ 
   
+![Ambari-IPA-kerberos-1](./screenshots/Ambari-IPA-kerberos-1.png)
+
+At this point, requirements are met.The ambari-managed principals group is no required and password expiration policies should not affect the service keytabs as they have not been given passwords. The `hadoopadmin` and `ldapbind` user password will expire and need to be changed in 90 days (along with the rest of the users), but that's a good thing. See the docs for explanations https://docs.hortonworks.com/HDPDocuments/HDP3/HDP-3.0.1/authentication-with-kerberos/content/kerberos_optional_use_an_existing_ipa.html 
+
+
+![Ambari-IPA-kerberos-2](./screenshots/Ambari-IPA-kerberos-2.png)
+
+If all goes well, 
+
+![Ambari-IPA-kerberos-3](./screenshots/Ambari-IPA-kerberos-3.png)
+
+Useful CLI for verifying the newly created Service Principals:
+
+	#Usage: ipa service-show <principal>
+	[root@demo ~]# ipa service-show spark/demo.hortonworks.com@HORTONWORKS.COM
+	  Principal name: spark/demo.hortonworks.com@HORTONWORKS.COM
+	  Principal alias: spark/demo.hortonworks.com@HORTONWORKS.COM
+	  Keytab: True
+	  Managed by: demo.hortonworks.com
+
 ---  
 
-<a name="section-5"></a>
-# 5. Enable LDAP For Ambari
+<a name="section-4"></a>
+# 4. Enable LDAP For Ambari
 
 #### FreeIPA Tips for determining LDAP Search Properties
 
@@ -272,7 +293,7 @@ ambari-server restart
 		numEntries: 1
 
 
-### 5.1 Enable LDAP for Ambari Server
+### 4.1 Enable LDAP for Ambari Server
 
 Ambari 2.7.1 offers a CLI option in `ambari-server setup-ldap` for choosing ldap type as IPA, which attempts to set some of the defaults required for integration. It seems to still have a few challenges, so few of the defaults need to be change. 
 
@@ -309,7 +330,7 @@ Force lower-case user names [true/false]:
 Results from LDAP are paginated when requested [true/false]:
 ```
 
-### 5.2 Sync users
+### 4.2 Sync users
 LDAP Users must be synced by invoked a command on the Ambari Server Host. User additions, and group associations made on the LDAP server will not propagate to Ambari automatically, only when this command is invoked. 
 
 ```
@@ -341,7 +362,7 @@ Ambari Server 'sync-ldap' completed successfully.
 ```
 Sometimes restarting ambari server again helps. 
 
-### 5.2 Verify user group associations in Ambari
+### 4.2.1 Verify user group associations in Ambari
 
 Log in to Ambari as an Admin and Navigate to Manage Ambari > Users. Example user/groups from this lab:
 
