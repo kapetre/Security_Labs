@@ -2,7 +2,7 @@
 ## Instuctions for IPA Lab 
 
 ### Pre-reqs
-- HDP 3.x / Ambari 2.7.x cluster<br>
+- HDP 3.x / Ambari 2.7.1 cluster<br>
 - Access to an IPA server that has been setup as descibed in [Hortonworks documentation](https://docs.hortonworks.com/HDPDocuments/HDP3/HDP-3.0.1/authentication-with-kerberos/content/kerberos_optional_use_an_existing_ipa.html)
 
 **Lab Topics**<br>
@@ -10,7 +10,7 @@
 1. [Register cluster nodes as IPA Clients](#section-1)
 2. [Secure Ambari via ambari-server setup-security](#section-2)
 3. [Enable Kerberos for cluster services](#section-3)
-4. [Enable LDAP for ambari, knox](#section-4)
+4. [Enable LDAP for ambari](#section-4)
 
 
 ## <a name="section-1"></a>1. Register cluster nodes as IPA clients
@@ -33,9 +33,7 @@ echo "nameserver $INTERNAL_IP_OF_IPA" >> /etc/resolv.conf
 ```
 - Install IPA client
 
-  ```
-	service dbus restart
-	
+  ```	
 	sudo ipa-client-install \
 	--server=ipa.hortonworks.com \
 	--realm=HORTONWORKS.COM \
@@ -44,6 +42,7 @@ echo "nameserver $INTERNAL_IP_OF_IPA" >> /etc/resolv.conf
 	--principal=admin -w BadPass#1 \
 	--unattended
   ```
+Note: restarting dbus seems to be required sometimes `service dbus restart`
 
 - Make sure you don't see below message from the output of previous command
 ```
@@ -70,11 +69,11 @@ id hadoopadmin
 kinit -V hadoopadmin
 ```
 
--
+---
 
 
-<a name="section-2"></a>
-# 2. Secure Ambari via ambari-server setup-security
+
+# <a name="section-2"></a> 2. Secure Ambari via ambari-server setup-security
 
 Lets use FreeIPA Generated certificate for Options 1 and 4 in `ambari-server setup-security`
 	
@@ -222,8 +221,7 @@ ambari-server restart
 
 ---
 
-<a name="section-3"></a>
-# 3. Enable kerberos on the cluster
+# <a name="section-3"></a>3. Enable kerberos on the cluster
 
 Enable Kerberos for cluster services via the wizard in Ambari, located in the Cluster Admin menu in the bottom left navigation panel. https://demo.hortonworks.com:8444/#/main/admin/kerberos
 
@@ -236,7 +234,7 @@ At this point, requirements are met.The ambari-managed principals group is no re
 
 ![Ambari-IPA-kerberos-2](./screenshots/Ambari-IPA-kerberos-2.png)
 
-If all goes well, 
+If all goes well, go grab a beer. 
 
 ![Ambari-IPA-kerberos-3](./screenshots/Ambari-IPA-kerberos-3.png)
 
@@ -251,8 +249,8 @@ Useful CLI for verifying the newly created Service Principals:
 
 ---  
 
-<a name="section-4"></a>
-# 4. Enable LDAP For Ambari
+
+# <a name="section-4"></a>4. Enable LDAP For Ambari
 
 #### FreeIPA Tips for determining LDAP Search Properties
 
@@ -280,7 +278,7 @@ Useful CLI for verifying the newly created Service Principals:
 		AM_LDAP_SEARCHBASE="cn=accounts,dc=hortonworks,dc=com"
 		AM_LDAP_BINDDN="uid=ldapbind,cn=users,cn=accounts,dc=hortonworks,dc=com"
 		AM_LDAP_BINDDN_PW="BadPass#1"
-		AM_LDAP_URL=ldaps://ipa.hortonworks.com:636
+		AM_LDAP_URL=ldaps://ipa.hortonworks.com:636
 		
 		# Search for a valid uid and ensure the searchbase, bind dn, and ldapurl resolve properly
 		[root@demo ~]# ldapsearch -D ${AM_LDAP_BINDDN} \
