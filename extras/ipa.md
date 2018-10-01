@@ -47,7 +47,6 @@ echo BadPass#1 | kinit admin
 # create a new principal to be used for ambari kerberos administration
 ipa user-add hadoopadmin --first=Hadoop --last=Admin --shell=/bin/bash
 
-
 # create a new principal to be used for read only ldab bind (whose password will expire in 90 days)
 ipa user-add ldapbind --first=ldap --last=bind
 
@@ -55,6 +54,9 @@ ipa user-add ldapbind --first=ldap --last=bind
 ipa role-add hadoopadminrole 
 ipa role-add-privilege hadoopadminrole --privileges="User Administrators" 
 ipa role-add-privilege hadoopadminrole --privileges="Service Administrators"
+
+# add the hadoopadmin user to the role
+ipa role-add-member hadoopadminrole --users=hadoopadmin
 
 #create users/groups
 ipa group-add analyst --desc analyst
